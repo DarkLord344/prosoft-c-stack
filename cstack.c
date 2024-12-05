@@ -7,7 +7,7 @@
 
 struct node
 {
-    const struct node* previous;
+    struct node* previous;
     unsigned int size;
     void* data;
 };
@@ -46,6 +46,12 @@ void stack_free(const hstack_t hstack)
     {
         if (table.stackTable[i].index == hstack)
         {
+            while (table.stackTable[i].size > 0) //удаляем все элементы стека
+            {
+                char* dataOut = malloc(table.stackTable[i].node->size);
+                stack_pop(hstack, dataOut, table.stackTable[i].node->size);
+                free(dataOut);
+            }
             if (i != (table.size - 1)) //если стек существует и элемент не последний сдвигаем масиив
             {
                 while (i < (table.size - 1))
@@ -57,12 +63,8 @@ void stack_free(const hstack_t hstack)
                 }
             }
             table.size--;
-            struct stack* newTable = NULL;
-            newTable = malloc(sizeof(struct stack) * (table.size));  //создаем буфер и копируем в него старый массив без последнего элемента
-            for (int i = 0; i < table.size; i++)
-            {
-                newTable[i] = table.stackTable[i];
-            }
+            struct stack* newTable = malloc(sizeof(struct stack) * (table.size));  //создаем буфер и копируем в него старый массив без последнего элемента
+            memcpy(newTable, table.stackTable, sizeof(struct stack) * (table.size));
             free(table.stackTable);
             table.stackTable = newTable;
             break;
@@ -98,9 +100,20 @@ void stack_push(const hstack_t hstack, const void* data_in, const unsigned int s
             if (table.stackTable[i].index == hstack)
             {
                 table.stackTable[i].size++; //находим нужный стэк и создаем новый элемент, стек указывает  на верхний элемент, элемнт указывает на следующий
-                struct node* newNode = NULL;
-                newNode = realloc(newNode, sizeof(struct node));
-                newNode->data = (char*)data_in;
+                struct node* newNode = malloc(sizeof(struct node));
+                if (newNode == NULL)
+                {
+                    free(newNode);
+                    return;
+                }
+                newNode->data = malloc(size);
+                if (newNode->data == NULL)
+                {
+                    free(newNode->data);
+                    free(newNode);
+                    return;
+                }
+                memcpy(newNode->data, data_in, size);
                 newNode->size = size;
                 newNode->previous = table.stackTable[i].node;
                 table.stackTable[i].node = newNode;
@@ -115,20 +128,17 @@ unsigned int stack_pop(const hstack_t hstack, void* data_out, const unsigned int
     {
         if (table.stackTable[i].index == hstack)
         {
-            if (table.stackTable[i].size > 0) //если данные существуют
+            if ((table.stackTable[i].size > 0) && (table.stackTable[i].node->size <= size) && (data_out != NULL)) //если данные существуют
             {
                 table.stackTable[i].size--;
-                unsigned int sizeNode;
-                if (table.stackTable[i].node->size < size) //проверяем какой из буферов больше
-                    sizeNode = table.stackTable[i].node->size;
-                else
-                    sizeNode = size;
-                memcpy(data_out, table.stackTable[i].node->data, sizeNode); //передаем данные
+                int nodeSize = table.stackTable[i].node->size;
+                memcpy(data_out, table.stackTable[i].node->data, nodeSize); //передаем данные
                 struct  node* oldNode = NULL;
                 oldNode = table.stackTable[i].node;
                 table.stackTable[i].node = (struct node*)table.stackTable[i].node->previous; //удаляем элемент
+                free(oldNode->data);
                 free(oldNode);
-                return sizeNode;
+                return nodeSize;
             }
         }
     }
