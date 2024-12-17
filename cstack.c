@@ -28,10 +28,10 @@ struct stackEntryes table = { 0 , NULL };
 
 hstack_t stack_new(void)
 {
-    table.stackTable = realloc(table.stackTable, sizeof(struct stack) * (table.size + 1));// выделяем память дополниельную ячейку под новый стэк
-    if (table.stackTable == NULL) //проверка на успешность выделения памяти
+    table.stackTable = realloc(table.stackTable, sizeof(struct stack) * (table.size + 1));// РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґРѕРїРѕР»РЅРёРµР»СЊРЅСѓСЋ СЏС‡РµР№РєСѓ РїРѕРґ РЅРѕРІС‹Р№ СЃС‚СЌРє
+    if (table.stackTable == NULL) //РїСЂРѕРІРµСЂРєР° РЅР° СѓСЃРїРµС€РЅРѕСЃС‚СЊ РІС‹РґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё
         return -1;
-    if (table.size == 0) //если первый раз создаем стэк его индекс равен 0, если не первый то индекс равен наибольшему существующему стеку + 1
+    if (table.size == 0) //РµСЃР»Рё РїРµСЂРІС‹Р№ СЂР°Р· СЃРѕР·РґР°РµРј СЃС‚СЌРє РµРіРѕ РёРЅРґРµРєСЃ СЂР°РІРµРЅ 0, РµСЃР»Рё РЅРµ РїРµСЂРІС‹Р№ С‚Рѕ РёРЅРґРµРєСЃ СЂР°РІРµРЅ РЅР°РёР±РѕР»СЊС€РµРјСѓ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРјСѓ СЃС‚РµРєСѓ + 1
         table.stackTable[table.size].index = table.size;
     else
         table.stackTable[table.size].index = table.stackTable[table.size - 1].index + 1;
@@ -46,16 +46,16 @@ void stack_free(const hstack_t hstack)
     {
         if (table.stackTable[i].index == hstack)
         {
-            while (table.stackTable[i].size > 0) //удаляем все элементы стека
+            while (table.stackTable[i].size > 0) //СѓРґР°Р»СЏРµРј РІСЃРµ СЌР»РµРјРµРЅС‚С‹ СЃС‚РµРєР°
             {
                 table.stackTable[i].size--;
                 struct  node* oldNode = NULL;
                 oldNode = table.stackTable[i].node;
-                table.stackTable[i].node = oldNode->previous; //удаляем элемент
+                table.stackTable[i].node = oldNode->previous; //СѓРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚
                 free(oldNode->data);
                 free(oldNode);
             }
-            if (i != (table.size - 1)) //если стек существует и элемент не последний сдвигаем масиив
+            if (i != (table.size - 1)) //РµСЃР»Рё СЃС‚РµРє СЃСѓС‰РµСЃС‚РІСѓРµС‚ Рё СЌР»РµРјРµРЅС‚ РЅРµ РїРѕСЃР»РµРґРЅРёР№ СЃРґРІРёРіР°РµРј РјР°СЃРёРёРІ
             {
                 while (i < (table.size - 1))
                 {
@@ -73,7 +73,7 @@ void stack_free(const hstack_t hstack)
                 break;
             }
             struct stack* newTable = NULL;
-            newTable = malloc(sizeof(struct stack) * (table.size));  //создаем буфер и копируем в него старый массив без последнего элемента
+            newTable = malloc(sizeof(struct stack) * (table.size));  //СЃРѕР·РґР°РµРј Р±СѓС„РµСЂ Рё РєРѕРїРёСЂСѓРµРј РІ РЅРµРіРѕ СЃС‚Р°СЂС‹Р№ РјР°СЃСЃРёРІ Р±РµР· РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р°
             memcpy(newTable, table.stackTable, sizeof(struct stack) * (table.size));
             free(table.stackTable);
             table.stackTable = newTable;
@@ -109,7 +109,7 @@ void stack_push(const hstack_t hstack, const void* data_in, const unsigned int s
         {
             if (table.stackTable[i].index == hstack)
             {
-                table.stackTable[i].size++; //находим нужный стэк и создаем новый элемент, стек указывает  на верхний элемент, элемнт указывает на следующий
+                table.stackTable[i].size++; //РЅР°С…РѕРґРёРј РЅСѓР¶РЅС‹Р№ СЃС‚СЌРє Рё СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚, СЃС‚РµРє СѓРєР°Р·С‹РІР°РµС‚  РЅР° РІРµСЂС…РЅРёР№ СЌР»РµРјРµРЅС‚, СЌР»РµРјРЅС‚ СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃР»РµРґСѓСЋС‰РёР№
                 struct node* newNode = malloc(sizeof(struct node));
                 if (newNode == NULL)
                 {
@@ -138,14 +138,14 @@ unsigned int stack_pop(const hstack_t hstack, void* data_out, const unsigned int
     {
         if (table.stackTable[i].index == hstack)
         {
-            if ((table.stackTable[i].size > 0) && (table.stackTable[i].node->size <= size) && (data_out != NULL)) //если данные существуют
+            if ((table.stackTable[i].size > 0) && (table.stackTable[i].node->size <= size) && (data_out != NULL)) //РµСЃР»Рё РґР°РЅРЅС‹Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‚
             {
                 table.stackTable[i].size--;
                 int nodeSize = table.stackTable[i].node->size;
-                memcpy(data_out, table.stackTable[i].node->data, nodeSize); //передаем данные
+                memcpy(data_out, table.stackTable[i].node->data, nodeSize); //РїРµСЂРµРґР°РµРј РґР°РЅРЅС‹Рµ
                 struct  node* oldNode = NULL;
                 oldNode = table.stackTable[i].node;
-                table.stackTable[i].node = table.stackTable[i].node->previous; //удаляем элемент
+                table.stackTable[i].node = table.stackTable[i].node->previous; //СѓРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚
                 free(oldNode->data);
                 free(oldNode);
                 return nodeSize;
