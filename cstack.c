@@ -48,9 +48,12 @@ void stack_free(const hstack_t hstack)
         {
             while (table.stackTable[i].size > 0) //удаляем все элементы стека
             {
-                char* dataOut = malloc(table.stackTable[i].node->size);
-                stack_pop(hstack, dataOut, table.stackTable[i].node->size);
-                free(dataOut);
+                table.stackTable[i].size--;
+                struct  node* oldNode = NULL;
+                oldNode = table.stackTable[i].node;
+                table.stackTable[i].node = oldNode->previous; //удаляем элемент
+                free(oldNode->data);
+                free(oldNode);
             }
             if (i != (table.size - 1)) //если стек существует и элемент не последний сдвигаем масиив
             {
@@ -63,7 +66,14 @@ void stack_free(const hstack_t hstack)
                 }
             }
             table.size--;
-            struct stack* newTable = malloc(sizeof(struct stack) * (table.size));  //создаем буфер и копируем в него старый массив без последнего элемента
+            if (table.size == 0)
+            {
+                free(table.stackTable);
+                table.stackTable = NULL;
+                break;
+            }
+            struct stack* newTable = NULL;
+            newTable = malloc(sizeof(struct stack) * (table.size));  //создаем буфер и копируем в него старый массив без последнего элемента
             memcpy(newTable, table.stackTable, sizeof(struct stack) * (table.size));
             free(table.stackTable);
             table.stackTable = newTable;
@@ -135,7 +145,7 @@ unsigned int stack_pop(const hstack_t hstack, void* data_out, const unsigned int
                 memcpy(data_out, table.stackTable[i].node->data, nodeSize); //передаем данные
                 struct  node* oldNode = NULL;
                 oldNode = table.stackTable[i].node;
-                table.stackTable[i].node = (struct node*)table.stackTable[i].node->previous; //удаляем элемент
+                table.stackTable[i].node = table.stackTable[i].node->previous; //удаляем элемент
                 free(oldNode->data);
                 free(oldNode);
                 return nodeSize;
